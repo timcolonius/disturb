@@ -208,6 +208,9 @@ footer.site a { color: #fff; }
 }
 """
 
+import hashlib
+CSS_VER = hashlib.md5(STYLE.encode()).hexdigest()[:8]  # cache-buster: changes whenever the CSS does
+
 # ── Scaffolding ────────────────────────────────────────────────────────────────
 
 def header_html(active: str) -> str:
@@ -258,7 +261,7 @@ def page(title: str, active: str, body: str, description: str = "") -> str:
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v={CSS_VER}">
 </head>
 <body>
 {header_html(active)}
@@ -296,7 +299,8 @@ PARTNER_LOGOS = [
 def hero() -> str:
     alt = f"{C.PROJECT} — {C.TAGLINE}"
     partners = "".join(
-        f'<a href="{url}" title="{name}"><img class="{cls}" src="images/{img}" alt="{name}"></a>'
+        f'<a href="{url}" title="{name}"><img class="{cls}" src="images/{img}" alt="{name}" '
+        f'height="{ {"eu": 56, "sq": 40, "ct": 26}.get(cls, 38) }"></a>'
         for name, img, cls, url in PARTNER_LOGOS)
     return f"""
 <section class="hero"><div class="container">
