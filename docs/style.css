@@ -125,6 +125,12 @@ table.wp td:last-child { color: var(--muted); text-align: right; white-space: no
 .members { list-style: none; font-size: .95rem; }
 .members li { padding: .3rem 0; border-top: 1px solid var(--line); }
 .members li span { color: var(--muted); font-size: .88rem; }
+.people { list-style: none; margin-top: 2.5rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 1.25rem; }
+.people li { padding: .7rem 0; border-top: 1px solid var(--line); }
+.people b { display: block; color: var(--navy); font-weight: 700; }
+.people span { color: var(--muted); font-size: .9rem; }
+@media (max-width: 900px) { .people { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px) { .people { grid-template-columns: 1fr; } }
 
 /* news & pubs */
 .news-item { display: grid; grid-template-columns: 7rem 1fr; gap: 1rem; padding: 1.2rem 0; border-top: 1px solid var(--line); }

@@ -156,6 +156,12 @@ table.wp td:last-child { color: var(--muted); text-align: right; white-space: no
 .members { list-style: none; font-size: .95rem; }
 .members li { padding: .3rem 0; border-top: 1px solid var(--line); }
 .members li span { color: var(--muted); font-size: .88rem; }
+.people { list-style: none; margin-top: 2.5rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 1.25rem; }
+.people li { padding: .7rem 0; border-top: 1px solid var(--line); }
+.people b { display: block; color: var(--navy); font-weight: 700; }
+.people span { color: var(--muted); font-size: .9rem; }
+@media (max-width: 900px) { .people { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px) { .people { grid-template-columns: 1fr; } }
 
 /* news & pubs */
 .news-item { display: grid; grid-template-columns: 7rem 1fr; gap: 1rem; padding: 1.2rem 0; border-top: 1px solid var(--line); }
@@ -264,7 +270,7 @@ def section(kicker: str, title: str, inner: str, alt: bool = False, id_: str = "
     idattr = f' id="{id_}"' if id_ else ""
     return f"""
 <section class="section{' alt' if alt else ''}"{idattr}><div class="container">
-  <div class="kicker">{kicker}</div>
+  {f'<div class="kicker">{kicker}</div>' if kicker else ''}
   <h2>{title}</h2>
   {inner}
 </div></section>"""
@@ -328,17 +334,6 @@ def flows_block(alt=False) -> str:
                    f'<div class="grid g3">{cards}</div>', alt)
 
 
-def plan_block(alt=False) -> str:
-    qs = "".join(f"<li>{q}</li>" for q in C.QUESTIONS)
-    ph = "".join(f"<div>{n} <span>· {m}</span></div>" for n, m in C.PHASES)
-    wp = "".join(f"<tr><td>{a}</td><td>{b}</td><td>{c}</td></tr>" for a, b, c in C.WORK_PACKAGES)
-    return section("Programme", "Scientific questions and six-year plan",
-                   f'<div class="grid g2"><div><h3>Scientific questions</h3><ol class="questions">{qs}</ol></div>'
-                   f'<div><h3>Six years, three phases</h3><div class="phases">{ph}</div>'
-                   f'<table class="wp">{wp}</table><p style="margin-top:1rem;color:var(--muted)">{C.OUTPUTS_TEXT}</p>'
-                   f'</div></div>', alt)
-
-
 
 
 # ── Sheet helpers ──────────────────────────────────────────────────────────────
@@ -392,47 +387,47 @@ def _is_pi(row: dict) -> bool:
     return bool(re.search(r"\bpi\b|principal investigator", role))
 
 
+def _last(r: dict) -> str:
+    return (g(r, "last") or g(r, "name").split()[-1]).lower()
+
+
 def team_from_sheet(rows: list[dict]) -> str:
+    """PIs first, in the sheet's row order; everyone else below, A–Z by last name."""
     rows = [r for r in rows if g(r, "name") and g(r, "show", "visible").lower() not in ("no", "n", "false", "0", "hide")]
-    buckets: list[list[dict]] = [[] for _ in range(len(GROUPS) + 1)]
-    for r in rows:
-        buckets[_group_of(r)].append(r)
+    pis = [r for r in rows if _is_pi(r)]
+    others = sorted((r for r in rows if not _is_pi(r)), key=lambda r: (_last(r), g(r, "first").lower()))
+
     cards = ""
-    for i, people in enumerate(buckets):
-        if not people:
-            continue
-        pillar, site = (GROUPS[i][0], GROUPS[i][1]) if i < len(GROUPS) else ("Collaborators", "")
-        pis = [p for p in people if _is_pi(p)]
-        others = [p for p in people if not _is_pi(p)]
-        pi_html = ""
-        for p in pis:
-            name = g(p, "name"); photo = g(p, "photo", "image", "photo url")
-            ph = (f'<img class="ph" src="{img_src(photo)}" alt="{name}">' if photo
-                  else f'<div class="ph empty">{initials(name)}</div>')
-            email = g(p, "email")
-            mail = f' · <a href="mailto:{email}">email</a>' if email else ""
-            pi_html += (f'<div class="pi">{ph}<div><b>{link(name, g(p, "url", "website", "link"))}</b>'
-                        f'<span>{g(p, "role", "position", "title")}{mail}</span></div></div>')
-        mem = ""
-        for p in others:
-            role = g(p, "role", "position", "title")
-            aff = g(p, "affiliation") if i == len(GROUPS) else ""
-            extra = " · ".join(x for x in (role, aff) if x)
-            mem += (f'<li>{link(g(p, "name"), g(p, "url", "website", "link"))}'
-                    f'{f" <span>· {extra}</span>" if extra else ""}</li>')
-        cards += (f'<div class="card site-card"><div class="pillar-name">{pillar}</div>'
-                  f'<div style="color:var(--muted);font-size:.92rem">{site}</div>'
-                  f'{pi_html}<ul class="members">{mem}</ul></div>')
-    return f'<div class="grid g3">{cards}</div>'
+    for p in pis:
+        name = g(p, "name"); photo = g(p, "photo", "image", "photo url")
+        ph = (f'<img class="ph" src="{img_src(photo)}" alt="{name}">' if photo
+              else f'<div class="ph empty">{initials(name)}</div>')
+        email = g(p, "email")
+        mail = f' · <a href="mailto:{email}">email</a>' if email else ""
+        gi = _group_of(p)
+        pillar = f'<div class="pillar-name">{GROUPS[gi][0]}</div>' if gi < len(GROUPS) else ""
+        cards += (f'<div class="card site-card">{pillar}'
+                  f'<div class="pi">{ph}<div><b>{link(name, g(p, "url", "website", "link"))}</b>'
+                  f'<span>{g(p, "role", "position", "title")}{mail}</span></div></div>'
+                  f'<div style="color:var(--muted);font-size:.92rem">{g(p, "institution", "affiliation", "site")}</div></div>')
+    out = f'<div class="grid g3">{cards}</div>'
+
+    if others:
+        items = "".join(
+            f'<li><b>{link(g(r, "name"), g(r, "url", "website", "link"))}</b>'
+            f'<span>{" · ".join(x for x in (g(r, "role", "position", "title"), g(r, "institution", "affiliation", "site")) if x)}</span></li>'
+            for r in others)
+        out += f'<ul class="people">{items}</ul>'
+    return out
 
 
 def team_from_content() -> str:
     """Fallback (sheet not reachable): the poster team from content.py."""
     rows = []
     for s in C.TEAM:
-        rows.append(dict(name=s["pi"]["name"], role=s["pi"]["role"], group=s["pillar"],
+        rows.append(dict(name=s["pi"]["name"], role="PI", institution=s["site"],
                          url=s["pi"].get("url", ""), photo=s["pi"].get("photo", "")))
-        rows += [dict(name=m, group=s["pillar"]) for m in s["members"]]
+        rows += [dict(name=m, institution=s["site"]) for m in s["members"]]
     return team_from_sheet(rows)
 
 
@@ -447,8 +442,7 @@ def norm_team(rows):
         r.setdefault("name", " ".join(x for x in (r.get("first", ""), r.get("last", "")) if x))
         r["url"] = g(r, "url", "homepage", "website")
         out.append(r)
-    out.sort(key=lambda r: (not _is_pi(r), r.get("last", "") or r["name"].split()[-1]))
-    return out
+    return out  # order is decided in team_from_sheet
 
 
 def norm_pubs(rows):
@@ -495,7 +489,7 @@ def norm_positions(rows):
 
 def build_index():
     body = (hero() + challenge_block() + pillars_block(alt=True) + twins_block() +
-            flows_block(alt=True) + plan_block())
+            flows_block(alt=True))
     body += section("Consortium", "Three sites, three pillars",
                     f'<p class="lead">{C.SITES}</p><p style="margin-top:1.5rem">'
                     f'<a class="btn" href="team.html">Meet the team</a> &nbsp; '
@@ -505,9 +499,7 @@ def build_index():
 
 def build_team(rows):
     inner = team_from_sheet(rows) if rows else team_from_content()
-    body = section("The team", "Experiment · Simulation · Modelling",
-                   f'<p class="lead" style="margin-bottom:2rem">DISTURB brings together three groups, '
-                   f'each leading one pillar: {C.SITES}.</p>' + inner)
+    body = section("", "The team", inner)
     (OUT / "team.html").write_text(page("Team", "team.html", body))
 
 
@@ -577,7 +569,6 @@ def build_positions(rows):
             listing += ('<h3 style="margin-top:2.5rem">Filled or closed</h3>' +
                         "".join(item(r) for r in closed))
     body = section("Join us", "Positions available",
-                   f'<p class="lead" style="margin-bottom:1.5rem">{C.OPENINGS_TEXT}</p>'
                    f'<div class="grid g3" style="margin-bottom:2rem">{figs}</div>{listing}')
     (OUT / "positions.html").write_text(page("Positions", "positions.html", body))
 
