@@ -143,10 +143,7 @@ table.wp td:last-child { color: var(--muted); text-align: right; white-space: no
 .btn.ghost { background: transparent; color: var(--navy); border: 2px solid var(--navy); }
 
 /* team */
-.site-card { border-top: 4px solid var(--red); }
-.site-card:nth-child(2) { border-top-color: var(--navy); }
-.site-card:nth-child(3) { border-top-color: var(--blue); }
-.site-card .pillar-name { font-size: .78rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--red); }
+.site-card { border-top: 4px solid var(--navy); }
 .pi { display: flex; gap: .9rem; align-items: center; margin: .9rem 0; }
 .pi .ph { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
 .pi .ph.empty { background: var(--panel); display: flex; align-items: center; justify-content: center;
@@ -365,23 +362,6 @@ def not_connected(what: str) -> str:
 
 # ── Team ───────────────────────────────────────────────────────────────────────
 
-# Each person is placed in a site group by matching these keywords against the
-# sheet's Group / Pillar / Site / Institution columns (first match wins).
-GROUPS = [
-    ("Experiment", "CNRS – Institut Pprime, Poitiers", ("experiment", "pprime", "poitiers", "cnrs")),
-    ("Simulation", "Sapienza Università di Roma", ("simulation", "sapienza", "roma", "rome", "uniroma")),
-    ("Modelling", "California Institute of Technology", ("modelling", "modeling", "caltech", "california institute")),
-]
-
-
-def _group_of(row: dict) -> int:
-    hay = " ".join(g(row, k) for k in ("group", "pillar", "site", "institution", "affiliation")).lower()
-    for i, (_, _, keys) in enumerate(GROUPS):
-        if any(k in hay for k in keys):
-            return i
-    return len(GROUPS)  # other / collaborators
-
-
 def _is_pi(row: dict) -> bool:
     role = g(row, "role", "position", "title").lower()
     return bool(re.search(r"\bpi\b|principal investigator", role))
@@ -404,9 +384,7 @@ def team_from_sheet(rows: list[dict]) -> str:
               else f'<div class="ph empty">{initials(name)}</div>')
         email = g(p, "email")
         mail = f' · <a href="mailto:{email}">email</a>' if email else ""
-        gi = _group_of(p)
-        pillar = f'<div class="pillar-name">{GROUPS[gi][0]}</div>' if gi < len(GROUPS) else ""
-        cards += (f'<div class="card site-card">{pillar}'
+        cards += (f'<div class="card site-card">'
                   f'<div class="pi">{ph}<div><b>{link(name, g(p, "url", "website", "link"))}</b>'
                   f'<span>{g(p, "role", "position", "title")}{mail}</span></div></div>'
                   f'<div style="color:var(--muted);font-size:.92rem">{g(p, "institution", "affiliation", "site")}</div></div>')
@@ -544,8 +522,6 @@ CLOSED = ("closed", "filled", "no", "past", "expired")
 
 
 def build_positions(rows):
-    figs = "".join(f'<div class="card" style="text-align:center"><h3 style="font-size:2rem">{v}</h3>'
-                   f'<p>{k}</p></div>' for v, k in C.KEY_FIGURES[2:])
     if rows is None:
         listing = not_connected("Open positions")
     else:
@@ -569,7 +545,7 @@ def build_positions(rows):
             listing += ('<h3 style="margin-top:2.5rem">Filled or closed</h3>' +
                         "".join(item(r) for r in closed))
     body = section("Join us", "Positions available",
-                   f'<div class="grid g3" style="margin-bottom:2rem">{figs}</div>{listing}')
+                   listing)
     (OUT / "positions.html").write_text(page("Positions", "positions.html", body))
 
 

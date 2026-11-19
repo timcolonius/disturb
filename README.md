@@ -17,7 +17,7 @@ The sheet must be shared "Anyone with the link → Viewer". Header row names mat
 
 | Tab | Columns |
 |---|---|
-| **Team** | `first`, `last`, `role` (anything containing "PI" gets a large card), `email` (shown as a link for PIs), `homepage`, `institution` (sorted into Experiment / Simulation / Modelling by keyword — Pprime/Poitiers, Sapienza/Roma, Caltech; anything else goes under Collaborators). Optional: `photo` (file in `docs/images/` or a URL), `show` (`no` hides a row). |
+| **Team** | `first`, `last`, `role` (anything containing "PI" gets a large card), `email` (shown as a link for PIs), `homepage`, `institution`. Rows whose role contains "PI" are shown first as cards, in sheet order; everyone else follows A–Z by last name. Optional: `photo` (file in `docs/images/` or a URL), `show` (`no` hides a row). |
 | **Publications** | `citation` (one BibTeX entry per cell), `link` (optional; overrides the BibTeX `url`). Grouped by year, newest first. |
 | **Positions** | `position`, `location`, `contact` (an email or a URL). Optional: `status` (`filled`/`closed` moves it to a "Filled or closed" list), `deadline`, `type`, `description`. |
 

@@ -112,10 +112,7 @@ table.wp td:last-child { color: var(--muted); text-align: right; white-space: no
 .btn.ghost { background: transparent; color: var(--navy); border: 2px solid var(--navy); }
 
 /* team */
-.site-card { border-top: 4px solid var(--red); }
-.site-card:nth-child(2) { border-top-color: var(--navy); }
-.site-card:nth-child(3) { border-top-color: var(--blue); }
-.site-card .pillar-name { font-size: .78rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--red); }
+.site-card { border-top: 4px solid var(--navy); }
 .pi { display: flex; gap: .9rem; align-items: center; margin: .9rem 0; }
 .pi .ph { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
 .pi .ph.empty { background: var(--panel); display: flex; align-items: center; justify-content: center;
