@@ -19,16 +19,14 @@
 <main>
 
 <section class="hero"><div class="container">
-  <div class="hero-logo">
-    <video autoplay muted playsinline preload="auto" poster="images/logo_lockup.png" aria-label="DISTURB — Digital Simulation Twins for Turbulence">
-      <source src="images/logo_anim.webm" type="video/webm">
-      <source src="images/logo_anim.mp4" type="video/mp4">
-    </video>
-    <img class="still" src="images/logo_lockup.png" alt="DISTURB — Digital Simulation Twins for Turbulence">
-  </div>
+  <picture class="hero-logo">
+    <source srcset="images/logo_lockup.png" media="(prefers-reduced-motion: reduce)">
+    <img src="images/logo_anim.webp" width="824" height="191" alt="DISTURB — Digital Simulation Twins for Turbulence">
+  </picture>
   <div class="hero-meta">
-    <div><div class="motto">See turbulence fully. Predict it. Control it.</div><div class="sites">Institut Pprime (CNRS) · Caltech · Sapienza</div></div>
     <div class="grant"><b>ERC Synergy Grant</b><br>2027–2033 · GA 101307825</div>
+    <div class="motto">See turbulence fully. Predict it. Control it.</div>
+    <div class="sites">Institut Pprime (CNRS) · Caltech · Sapienza</div>
   </div>
 </div></section>
 <section class="intro"><div class="container">
