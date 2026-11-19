@@ -468,10 +468,6 @@ def norm_positions(rows):
 def build_index():
     body = (hero() + challenge_block() + pillars_block(alt=True) + twins_block() +
             flows_block(alt=True))
-    body += section("Consortium", "Three sites, three pillars",
-                    f'<p class="lead">{C.SITES}</p><p style="margin-top:1.5rem">'
-                    f'<a class="btn" href="team.html">Meet the team</a> &nbsp; '
-                    f'<a class="btn ghost" href="positions.html">Positions available</a></p>', alt=True)
     (OUT / "index.html").write_text(page("", "index.html", body))
 
 
