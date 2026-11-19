@@ -118,6 +118,7 @@ table.wp td:last-child { color: var(--muted); text-align: right; white-space: no
 .pi span { font-size: .85rem; color: var(--muted); }
 .members { list-style: none; font-size: .95rem; }
 .members li { padding: .3rem 0; border-top: 1px solid var(--line); }
+.members li span { color: var(--muted); font-size: .88rem; }
 
 /* news & pubs */
 .news-item { display: grid; grid-template-columns: 7rem 1fr; gap: 1rem; padding: 1.2rem 0; border-top: 1px solid var(--line); }

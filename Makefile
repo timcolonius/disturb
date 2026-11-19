@@ -1,5 +1,5 @@
 # ── DISTURB website ─────────────────────────────────────────────────────────
-#   make site     → rebuild the HTML into docs/ from content.py
+#   make site     → rebuild docs/ from content.py + the Google Sheet
 #   make serve    → build and preview at http://localhost:8001
 #   make deploy   → commit everything and push (GitHub Actions publishes)
 MSG ?= Update site content

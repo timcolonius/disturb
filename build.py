@@ -10,9 +10,11 @@ Standard library only — no dependencies.
 from __future__ import annotations
 
 from datetime import datetime
+import re
 from pathlib import Path
 
 import content as C
+import sheet_data
 
 OUT = Path(__file__).parent / "docs"
 OUT.mkdir(exist_ok=True)
@@ -20,11 +22,9 @@ YEAR = datetime.now().year
 
 NAV = [
     ("Home", "index.html"),
-    ("Research", "research.html"),
     ("Team", "team.html"),
-    ("News", "news.html"),
     ("Publications", "publications.html"),
-    ("Join us", "join.html"),
+    ("Positions", "positions.html"),
 ]
 
 # ── Styles ─────────────────────────────────────────────────────────────────────
@@ -148,6 +148,7 @@ table.wp td:last-child { color: var(--muted); text-align: right; white-space: no
 .pi span { font-size: .85rem; color: var(--muted); }
 .members { list-style: none; font-size: .95rem; }
 .members li { padding: .3rem 0; border-top: 1px solid var(--line); }
+.members li span { color: var(--muted); font-size: .88rem; }
 
 /* news & pubs */
 .news-item { display: grid; grid-template-columns: 7rem 1fr; gap: 1rem; padding: 1.2rem 0; border-top: 1px solid var(--line); }
@@ -323,105 +324,201 @@ def plan_block(alt=False) -> str:
                    f'</div></div>', alt)
 
 
+
+
+# ── Sheet helpers ──────────────────────────────────────────────────────────────
+
+def g(row: dict, *keys: str) -> str:
+    """First non-empty value among the given column names (lower-case)."""
+    for k in keys:
+        v = row.get(k, "")
+        if v:
+            return v
+    return ""
+
+
+def img_src(v: str) -> str:
+    return v if v.startswith(("http://", "https://")) else f"images/{v}"
+
+
 def initials(name: str) -> str:
-    return "".join(w[0] for w in name.split()[:2])
+    return "".join(w[0] for w in name.split()[:2] if w)
 
 
-def team_cards() -> str:
-    out = ""
+def link(text: str, url: str) -> str:
+    return f'<a href="{url}">{text}</a>' if url else text
+
+
+def not_connected(what: str) -> str:
+    return (f'<p class="empty-note">{what} will appear here once the project spreadsheet is '
+            f'connected.</p>')
+
+# ── Team ───────────────────────────────────────────────────────────────────────
+
+# Each person is placed in a site group by matching these keywords against the
+# sheet's Group / Pillar / Site / Institution columns (first match wins).
+GROUPS = [
+    ("Experiment", "CNRS – Institut Pprime, Poitiers", ("experiment", "pprime", "poitiers", "cnrs")),
+    ("Simulation", "Sapienza Università di Roma", ("simulation", "sapienza", "roma", "rome")),
+    ("Modelling", "California Institute of Technology", ("modelling", "modeling", "caltech")),
+]
+
+
+def _group_of(row: dict) -> int:
+    hay = " ".join(g(row, k) for k in ("group", "pillar", "site", "institution", "affiliation")).lower()
+    for i, (_, _, keys) in enumerate(GROUPS):
+        if any(k in hay for k in keys):
+            return i
+    return len(GROUPS)  # other / collaborators
+
+
+def _is_pi(row: dict) -> bool:
+    role = g(row, "role", "position", "title").lower()
+    return bool(re.search(r"\bpi\b|principal investigator", role))
+
+
+def team_from_sheet(rows: list[dict]) -> str:
+    rows = [r for r in rows if g(r, "name") and g(r, "show", "visible").lower() not in ("no", "n", "false", "0", "hide")]
+    buckets: list[list[dict]] = [[] for _ in range(len(GROUPS) + 1)]
+    for r in rows:
+        buckets[_group_of(r)].append(r)
+    cards = ""
+    for i, people in enumerate(buckets):
+        if not people:
+            continue
+        pillar, site = (GROUPS[i][0], GROUPS[i][1]) if i < len(GROUPS) else ("Collaborators", "")
+        pis = [p for p in people if _is_pi(p)]
+        others = [p for p in people if not _is_pi(p)]
+        pi_html = ""
+        for p in pis:
+            name = g(p, "name"); photo = g(p, "photo", "image", "photo url")
+            ph = (f'<img class="ph" src="{img_src(photo)}" alt="{name}">' if photo
+                  else f'<div class="ph empty">{initials(name)}</div>')
+            pi_html += (f'<div class="pi">{ph}<div><b>{link(name, g(p, "url", "website", "link"))}</b>'
+                        f'<span>{g(p, "role", "position", "title")}</span></div></div>')
+        mem = ""
+        for p in others:
+            role = g(p, "role", "position", "title")
+            aff = g(p, "affiliation") if i == len(GROUPS) else ""
+            extra = " · ".join(x for x in (role, aff) if x)
+            mem += (f'<li>{link(g(p, "name"), g(p, "url", "website", "link"))}'
+                    f'{f" <span>· {extra}</span>" if extra else ""}</li>')
+        cards += (f'<div class="card site-card"><div class="pillar-name">{pillar}</div>'
+                  f'<div style="color:var(--muted);font-size:.92rem">{site}</div>'
+                  f'{pi_html}<ul class="members">{mem}</ul></div>')
+    return f'<div class="grid g3">{cards}</div>'
+
+
+def team_from_content() -> str:
+    """Fallback (sheet not reachable): the poster team from content.py."""
+    rows = []
     for s in C.TEAM:
-        pi = s["pi"]
-        ph = (f'<img class="ph" src="images/{pi["photo"]}" alt="{pi["name"]}">' if pi.get("photo")
-              else f'<div class="ph empty">{initials(pi["name"])}</div>')
-        name = f'<a href="{pi["url"]}">{pi["name"]}</a>' if pi.get("url") else pi["name"]
-        mem = "".join(f"<li>{m}</li>" for m in s["members"])
-        site = f'<a href="{s["url"]}">{s["site"]}</a>' if s.get("url") else s["site"]
-        out += (f'<div class="card site-card"><div class="pillar-name">{s["pillar"]}</div>'
-                f'<div style="color:var(--muted);font-size:.92rem">{site}</div>'
-                f'<div class="pi">{ph}<div><b>{name}</b><span>{pi["role"]}</span></div></div>'
-                f'<ul class="members">{mem}</ul></div>')
-    return f'<div class="grid g3">{out}</div>'
+        rows.append(dict(name=s["pi"]["name"], role=s["pi"]["role"], group=s["pillar"],
+                         url=s["pi"].get("url", ""), photo=s["pi"].get("photo", "")))
+        rows += [dict(name=m, group=s["pillar"]) for m in s["members"]]
+    return team_from_sheet(rows)
 
-
-def news_list(items) -> str:
-    if not items:
-        return '<p class="empty-note">No news yet.</p>'
-    return "".join(f'<div class="news-item"><time>{n["date"]}</time><div><h3>{n["title"]}</h3>'
-                   f'<p>{n["text"]}</p></div></div>' for n in items)
 
 # ── Pages ──────────────────────────────────────────────────────────────────────
 
 def build_index():
-    body = hero()
-    body += section("The project", "Seeing turbulence through three lenses at once",
-        f'<p class="lead">{C.CHALLENGE_TEXT}</p>'
-        f'<p style="margin-top:1.5rem"><a class="btn" href="research.html">Explore the research</a> &nbsp; '
-        f'<a class="btn ghost" href="join.html">Open positions</a></p>')
-    body += twins_block(alt=True)
-    body += flows_block()
-    body += section("Consortium", "Three sites, three pillars", team_cards(), alt=True)
-    body += section("Latest", "News", news_list(C.NEWS[:3]) +
-                    '<p style="margin-top:1rem"><a href="news.html">All news →</a></p>')
+    body = (hero() + challenge_block() + pillars_block(alt=True) + twins_block() +
+            flows_block(alt=True) + plan_block())
+    body += section("Consortium", "Three sites, three pillars",
+                    f'<p class="lead">{C.SITES}</p><p style="margin-top:1.5rem">'
+                    f'<a class="btn" href="team.html">Meet the team</a> &nbsp; '
+                    f'<a class="btn ghost" href="positions.html">Positions available</a></p>', alt=True)
     (OUT / "index.html").write_text(page("", "index.html", body))
 
 
-def build_research():
-    body = (challenge_block() + pillars_block(alt=True) + twins_block() +
-            flows_block(alt=True) + plan_block())
-    (OUT / "research.html").write_text(page("Research", "research.html", body))
-
-
-def build_team():
+def build_team(rows):
+    inner = team_from_sheet(rows) if rows else team_from_content()
     body = section("The team", "Experiment · Simulation · Modelling",
                    f'<p class="lead" style="margin-bottom:2rem">DISTURB brings together three groups, '
-                   f'each leading one pillar: {C.SITES}.</p>' + team_cards())
+                   f'each leading one pillar: {C.SITES}.</p>' + inner)
     (OUT / "team.html").write_text(page("Team", "team.html", body))
 
 
-def build_news():
-    body = section("News", "Project news", news_list(C.NEWS))
-    (OUT / "news.html").write_text(page("News", "news.html", body))
+def _year(r) -> int:
+    m = re.search(r"\d{4}", g(r, "year", "date"))
+    return int(m.group()) if m else 0
 
 
-def build_publications():
-    if C.PUBLICATIONS:
-        items = ""
-        for p in C.PUBLICATIONS:
-            links = []
-            if p.get("doi"):
-                links.append(f'<a href="https://doi.org/{p["doi"]}">doi</a>')
-            if p.get("open_access"):
-                links.append(f'<a href="{p["open_access"]}">open access</a>')
-            items += (f'<div class="pub"><div class="t">{p["title"]}</div>'
-                      f'<div>{p["authors"]}</div><div class="m">{p["venue"]} ({p["year"]})'
-                      f'{" · " + " · ".join(links) if links else ""}</div></div>')
-    else:
-        items = ('<p class="empty-note">Publications, open datasets and software will be listed '
+def build_publications(rows):
+    if rows is None:
+        inner = not_connected("Publications")
+    elif not [r for r in rows if g(r, "title")]:
+        inner = ('<p class="empty-note">Publications, open datasets and software will be listed '
                  'here as the project progresses.</p>')
-    body = section("Outputs", "Publications, data and software", items)
+    else:
+        rows = sorted((r for r in rows if g(r, "title")), key=_year, reverse=True)
+        inner, cur = "", None
+        for r in rows:
+            y = _year(r)
+            if y != cur:
+                inner += f'<h3 style="margin-top:1.8rem">{y or "Forthcoming"}</h3>'
+                cur = y
+            doi = g(r, "doi")
+            doi = re.sub(r"^(https?://(dx\.)?doi\.org/)", "", doi)
+            links = []
+            if doi:
+                links.append(f'<a href="https://doi.org/{doi}">doi</a>')
+            for k, label in (("url", "link"), ("link", "link"), ("pdf", "pdf"),
+                             ("open access", "open access"), ("data", "data"), ("code", "code")):
+                if r.get(k) and not (label == "link" and any("link" in l for l in links)):
+                    links.append(f'<a href="{r[k]}">{label}</a>')
+            venue = g(r, "venue", "journal", "conference", "booktitle")
+            meta = " · ".join(x for x in (venue, g(r, "type")) if x)
+            inner += (f'<div class="pub"><div class="t">{g(r, "title")}</div>'
+                      f'<div>{g(r, "authors", "author")}</div>'
+                      f'<div class="m">{meta}{" · " if meta and links else ""}{" · ".join(links)}</div></div>')
+    body = section("Outputs", "Publications, data and software", inner)
     (OUT / "publications.html").write_text(page("Publications", "publications.html", body))
 
 
-def build_join():
-    if C.OPENINGS:
-        rows = "".join(f'<div class="news-item"><time>{o.get("date","")}</time><div><h3>'
-                       f'<a href="{o["url"]}">{o["title"]}</a></h3><p>{o["site"]}</p></div></div>'
-                       for o in C.OPENINGS)
-    else:
-        rows = '<p class="empty-note">No positions are open yet — check back soon.</p>'
+CLOSED = ("closed", "filled", "no", "past", "expired")
+
+
+def build_positions(rows):
     figs = "".join(f'<div class="card" style="text-align:center"><h3 style="font-size:2rem">{v}</h3>'
                    f'<p>{k}</p></div>' for v, k in C.KEY_FIGURES[2:])
-    body = section("Join us", "Open positions",
+    if rows is None:
+        listing = not_connected("Open positions")
+    else:
+        rows = [r for r in rows if g(r, "title", "position")]
+        open_ = [r for r in rows if g(r, "status", "open").lower() not in CLOSED]
+        closed = [r for r in rows if r not in open_]
+
+        def item(r):
+            when = g(r, "deadline", "date", "start")
+            meta = " · ".join(x for x in (g(r, "type", "level"), g(r, "site", "institution", "location")) if x)
+            desc = g(r, "description", "details", "summary")
+            return (f'<div class="news-item"><time>{when}</time><div>'
+                    f'<h3>{link(g(r, "title", "position"), g(r, "url", "link", "apply"))}</h3>'
+                    f'<p style="color:var(--muted)">{meta}</p>'
+                    f'{f"<p>{desc}</p>" if desc else ""}</div></div>')
+
+        listing = ("".join(item(r) for r in open_) if open_ else
+                   '<p class="empty-note">No positions are open yet — check back soon.</p>')
+        if closed:
+            listing += ('<h3 style="margin-top:2.5rem">Filled or closed</h3>' +
+                        "".join(item(r) for r in closed))
+    body = section("Join us", "Positions available",
                    f'<p class="lead" style="margin-bottom:1.5rem">{C.OPENINGS_TEXT}</p>'
-                   f'<div class="grid g3" style="margin-bottom:2rem">{figs}</div>{rows}')
-    (OUT / "join.html").write_text(page("Join us", "join.html", body))
+                   f'<div class="grid g3" style="margin-bottom:2rem">{figs}</div>{listing}')
+    (OUT / "positions.html").write_text(page("Positions", "positions.html", body))
 
 
 def main():
     (OUT / "style.css").write_text(STYLE)
     (OUT / ".nojekyll").write_text("")
-    build_index(); build_research(); build_team(); build_news()
-    build_publications(); build_join()
+    for old in ("research.html", "news.html", "join.html"):
+        (OUT / old).unlink(missing_ok=True)
+    team, pubs, pos = (sheet_data.tab(t) for t in ("Team", "Publications", "Positions"))
+    build_index()
+    build_team(team)
+    build_publications(pubs)
+    build_positions(pos)
     print(f"Built site into {OUT}/")
 
 

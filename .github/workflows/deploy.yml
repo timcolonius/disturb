@@ -3,7 +3,9 @@ name: Build and deploy website
 on:
   push:
     branches: [main]
-  workflow_dispatch:
+  workflow_dispatch:      # 'Run workflow' button on the Actions tab
+  schedule:
+    - cron: "17 6 * * *"  # daily rebuild picks up Google Sheet edits
 
 permissions:
   contents: read

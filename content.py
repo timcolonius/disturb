@@ -1,7 +1,8 @@
 """Site content for the DISTURB website.
 
-Edit this file to change text, team members, news or publications, then run
-`make site` (or `make serve` to preview). Text fields may contain simple HTML
+Edit this file to change the Home page text, then run `make site` (or
+`make serve` to preview). Team, Publications and Positions come from the
+Google Sheet instead (see sheet_data.py). Text fields may contain simple HTML
 (<em>, <sup>, <a href=...>).
 """
 
@@ -143,21 +144,6 @@ OPENINGS_TEXT = (
     "engineers across Poitiers, Rome and Pasadena. Positions will be advertised "
     "here as they open."
 )
-OPENINGS = [
-    # dict(title="Post-doc in data assimilation for turbulent jets", site="Caltech",
-    #      date="2027-01-15", url="https://..."),
-]
 
-# ── News (newest first) ──────────────────────────────────────────────────────
-NEWS = [
-    dict(date="2026-11", title="DISTURB awarded an ERC Synergy Grant",
-         text="The European Research Council has awarded €9.9 M to DISTURB, a "
-              "six-year collaboration between Institut Pprime (CNRS), Sapienza "
-              "Università di Roma and Caltech. The project starts in 2027."),
-]
-
-# ── Publications (newest first). Leave empty until the first outputs. ────────
-PUBLICATIONS = [
-    # dict(authors="A. Author, B. Author", title="...", venue="J. Fluid Mech. 999, A1",
-    #      year=2027, doi="10.1017/jfm.2027.1", open_access="https://hal.science/..."),
-]
+# Team, Publications and Positions listings come from the Google Sheet
+# (see sheet_data.py). TEAM above is only a fallback if the sheet is unreachable.
