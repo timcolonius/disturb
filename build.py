@@ -79,12 +79,17 @@ nav.site a.lnk.active { color: #fff; box-shadow: inset 0 -3px 0 var(--red); }
 .hero { background: #fff; border-bottom: 1px solid var(--line); }
 .hero .container { display: flex; align-items: center; gap: 1.5rem 2.5rem; flex-wrap: wrap;
   padding-top: 1.4rem; padding-bottom: 1.4rem; }
-.hero-logo { width: min(100%, 480px); flex-shrink: 0; }
+.hero-logo { width: min(100%, 420px); flex-shrink: 0; }
 .hero-logo img { width: 100%; height: auto; }
 .hero-meta { margin-left: auto; text-align: right; }
-.hero-meta .motto { color: var(--red); font-weight: 800; font-size: 1.1rem; line-height: 1.3; margin-top: .5rem; }
-.hero-meta .sites { color: var(--muted); font-size: .92rem; }
-.hero-meta .grant { font-size: .8rem; margin-left: 0; text-align: inherit; }
+.partners { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: .8rem 1.3rem; }
+.partners img { height: 38px; width: auto; }
+.partners img.eu { height: 56px; }
+.partners img.sq { height: 40px; }
+.partners img.ct { height: 26px; }
+.hero-meta .motto { color: var(--red); font-weight: 800; font-size: 1.05rem; line-height: 1.3; margin-top: .9rem; }
+.hero-meta .grant { font-size: .74rem; margin: .2rem 0 0; text-align: inherit; }
+@media (max-width: 1100px) { .hero-meta { margin-left: 0; text-align: left; } .partners { justify-content: flex-start; } }
 .intro { background: var(--navy); color: #e3e9f4; }
 .intro .container { padding-top: 3rem; padding-bottom: 3rem; }
 .intro h1 { color: #fff; font-size: clamp(1.7rem, 3.6vw, 2.5rem); font-weight: 800; max-width: 46rem; }
@@ -193,6 +198,9 @@ footer.site a { color: #fff; }
   nav.site ul { margin-left: 0; width: 100%; overflow-x: auto; }
   nav.site a.lnk { padding: .6rem .7rem; white-space: nowrap; }
   .hero-meta { margin-left: 0; text-align: left; }
+  .partners { justify-content: flex-start; }
+  .partners { gap: .6rem .8rem; }
+  .partners img { height: 24px; } .partners img.eu { height: 40px; } .partners img.sq { height: 26px; } .partners img.ct { height: 17px; }
   .phases { grid-template-columns: 1fr; }
   .news-item { grid-template-columns: 1fr; gap: .2rem; }
   .funding { grid-template-columns: 1fr; }
@@ -274,8 +282,22 @@ def section(kicker: str, title: str, inner: str, alt: bool = False, id_: str = "
 
 # ── Page blocks ────────────────────────────────────────────────────────────────
 
+# Logo strip in the Home banner: EU/ERC first, then the three institutions.
+# EU rules: the EU emblem must be at least as large as any other logo shown.
+PARTNER_LOGOS = [
+    ("Funded by the European Union — European Research Council", "logo_eu_erc.png", "eu", "https://erc.europa.eu/"),
+    ("CNRS", "logo_cnrs.png", "sq", "https://www.cnrs.fr/"),
+    ("Institut Pprime", "logo_pprime.png", "sq", "https://pprime.fr/"),
+    ("Sapienza Università di Roma", "logo_sapienza.png", "", "https://www.uniroma1.it/"),
+    ("Caltech", "logo_caltech.png", "ct", "https://www.caltech.edu/"),
+]
+
+
 def hero() -> str:
     alt = f"{C.PROJECT} — {C.TAGLINE}"
+    partners = "".join(
+        f'<a href="{url}" title="{name}"><img class="{cls}" src="images/{img}" alt="{name}"></a>'
+        for name, img, cls, url in PARTNER_LOGOS)
     return f"""
 <section class="hero"><div class="container">
   <picture class="hero-logo">
@@ -283,9 +305,9 @@ def hero() -> str:
     <img src="images/logo_anim.webp" width="824" height="191" alt="{alt}">
   </picture>
   <div class="hero-meta">
-    <div class="grant"><b>{C.GRANT}</b><br>{C.PERIOD} · GA {C.GA}</div>
+    <div class="partners">{partners}</div>
     <div class="motto">{C.MOTTO}</div>
-    <div class="sites">{C.SITES}</div>
+    <div class="grant">{C.GRANT} · {C.PERIOD} · GA {C.GA}</div>
   </div>
 </div></section>
 <section class="intro"><div class="container">
