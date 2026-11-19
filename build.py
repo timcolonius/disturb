@@ -104,12 +104,6 @@ nav.site a.lnk.active { color: #fff; box-shadow: inset 0 -3px 0 var(--red); }
 .card { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 1.25rem; }
 .alt .card { border-color: #dde3ec; }
 .card p { color: var(--muted); font-size: .97rem; }
-.apps { display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; margin: 1.5rem 0 2rem; }
-.apps figure { position: relative; border-radius: 6px; overflow: hidden; aspect-ratio: 4/3; }
-.apps img { width: 100%; height: 100%; object-fit: cover; }
-.apps figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: .3rem .6rem; font-size: .75rem;
-  font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #fff;
-  background: linear-gradient(transparent, rgba(0,0,0,.65)); }
 .pillar { display: flex; flex-direction: column; overflow: hidden; padding: 0; }
 .pillar img { aspect-ratio: 16/10; object-fit: cover; width: 100%; background: #000; }
 .pillar .body { padding: 1.1rem 1.25rem 1.3rem; }
@@ -191,21 +185,7 @@ footer.site a { color: #fff; }
 @media (max-width: 640px) {
   body { font-size: 16px; }
   .g2, .g3, .g4 { grid-template-columns: 1fr; }
-  .apps { grid-template-columns: 1fr 1fr; }
-  .grant.top { display: none; }
-  .brandbar img { height: 52px; }
-  nav.site .container { flex-wrap: wrap; gap: 0; }
-  nav.site ul { margin-left: 0; width: 100%; overflow-x: auto; }
-  nav.site a.lnk { padding: .6rem .7rem; white-space: nowrap; }
-  .hero-meta { margin-left: 0; text-align: left; }
-  .partners { justify-content: flex-start; }
-  .partners { gap: .6rem .8rem; }
-  .partners img { height: 24px; } .partners img.eu { height: 40px; } .partners img.sq { height: 26px; } .partners img.ct { height: 17px; }
-  .phases { grid-template-columns: 1fr; }
-  .news-item { grid-template-columns: 1fr; gap: .2rem; }
-  .funding { grid-template-columns: 1fr; }
-  .section { padding: 2.5rem 0; }
-}
+  }
 """
 
 import hashlib
@@ -321,11 +301,9 @@ def hero() -> str:
 
 
 def challenge_block(alt=False) -> str:
-    apps = "".join(f'<figure><img src="images/{img}" alt="{n}" loading="lazy"><figcaption>{n}</figcaption></figure>'
-                   for n, img in C.APPLICATIONS)
     cards = "".join(f'<div class="card"><h3>{t}</h3><p>{d}</p></div>' for t, d in C.CHALLENGES)
     return section("The challenge", "Turbulence: a barrier to progress",
-                   f'<p class="lead">{C.CHALLENGE_TEXT}</p><div class="apps">{apps}</div>'
+                   f'<p class="lead" style="margin-bottom:2rem">{C.CHALLENGE_TEXT}</p>'
                    f'<div class="grid g4">{cards}</div>', alt)
 
 

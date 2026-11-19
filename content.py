@@ -45,8 +45,6 @@ CHALLENGE_TEXT = (
     "put it beyond the reach of experiment, simulation or modelling taken "
     "separately."
 )
-APPLICATIONS = [("Transport", "app_transport.jpg"), ("Energy", "app_energy.jpg"),
-                ("Biomedical", "app_biomedical.jpg"), ("Environment", "app_environment.jpg")]
 CHALLENGES = [
     ("Enormous dimensionality", "The scale range grows as Re<sup>3/4</sup> along each of the three spatial dimensions."),
     ("Nonlinearity", "Triadic interactions couple every scale to every other."),
