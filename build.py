@@ -15,6 +15,7 @@ from pathlib import Path
 
 import content as C
 import sheet_data
+import bibtex
 
 OUT = Path(__file__).parent / "docs"
 OUT.mkdir(exist_ok=True)
@@ -359,8 +360,8 @@ def not_connected(what: str) -> str:
 # sheet's Group / Pillar / Site / Institution columns (first match wins).
 GROUPS = [
     ("Experiment", "CNRS – Institut Pprime, Poitiers", ("experiment", "pprime", "poitiers", "cnrs")),
-    ("Simulation", "Sapienza Università di Roma", ("simulation", "sapienza", "roma", "rome")),
-    ("Modelling", "California Institute of Technology", ("modelling", "modeling", "caltech")),
+    ("Simulation", "Sapienza Università di Roma", ("simulation", "sapienza", "roma", "rome", "uniroma")),
+    ("Modelling", "California Institute of Technology", ("modelling", "modeling", "caltech", "california institute")),
 ]
 
 
@@ -394,8 +395,10 @@ def team_from_sheet(rows: list[dict]) -> str:
             name = g(p, "name"); photo = g(p, "photo", "image", "photo url")
             ph = (f'<img class="ph" src="{img_src(photo)}" alt="{name}">' if photo
                   else f'<div class="ph empty">{initials(name)}</div>')
+            email = g(p, "email")
+            mail = f' · <a href="mailto:{email}">email</a>' if email else ""
             pi_html += (f'<div class="pi">{ph}<div><b>{link(name, g(p, "url", "website", "link"))}</b>'
-                        f'<span>{g(p, "role", "position", "title")}</span></div></div>')
+                        f'<span>{g(p, "role", "position", "title")}{mail}</span></div></div>')
         mem = ""
         for p in others:
             role = g(p, "role", "position", "title")
@@ -418,6 +421,61 @@ def team_from_content() -> str:
         rows += [dict(name=m, group=s["pillar"]) for m in s["members"]]
     return team_from_sheet(rows)
 
+
+# ── Map the sheet's columns onto the fields the pages use ─────────────────────
+
+def norm_team(rows):
+    if rows is None:
+        return None
+    out = []
+    for r in rows:
+        r = dict(r)
+        r.setdefault("name", " ".join(x for x in (r.get("first", ""), r.get("last", "")) if x))
+        r["url"] = g(r, "url", "homepage", "website")
+        out.append(r)
+    out.sort(key=lambda r: (not _is_pi(r), r.get("last", "") or r["name"].split()[-1]))
+    return out
+
+
+def norm_pubs(rows):
+    if rows is None:
+        return None
+    out = []
+    for r in rows:
+        b = bibtex.parse(r.get("citation", "")) if r.get("citation") else None
+        if not b:
+            if g(r, "title"):
+                out.append(r)
+            continue
+        bits = [bibtex.detex(g(b, "journal", "booktitle", "school", "publisher", "howpublished"))]
+        if b.get("volume"):
+            bits.append(b["volume"] + (f"({b['number']})" if b.get("number") else ""))
+        if b.get("pages"):
+            bits.append(bibtex.detex(b["pages"]))
+        out.append(dict(title=bibtex.detex(b.get("title", "")), authors=bibtex.authors(b.get("author", "")),
+                        venue=", ".join(x for x in bits if x), year=b.get("year", ""),
+                        doi=b.get("doi", ""), url=r.get("link") or b.get("url", "")))
+    return out
+
+
+def norm_positions(rows):
+    if rows is None:
+        return None
+    out = []
+    for r in rows:
+        r = dict(r)
+        r["title"] = g(r, "title", "position")
+        r["site"] = g(r, "site", "location", "institution")
+        c = r.get("contact", "")
+        if c.startswith(("http://", "https://")):
+            r.setdefault("url", c)
+            r["contact_html"] = f'<a href="{c}">details and application</a>'
+        elif "@" in c:
+            r["contact_html"] = f'Contact: <a href="mailto:{c}">{c}</a>'
+        elif c:
+            r["contact_html"] = f"Contact: {c}"
+        out.append(r)
+    return out
 
 # ── Pages ──────────────────────────────────────────────────────────────────────
 
@@ -493,10 +551,11 @@ def build_positions(rows):
             when = g(r, "deadline", "date", "start")
             meta = " · ".join(x for x in (g(r, "type", "level"), g(r, "site", "institution", "location")) if x)
             desc = g(r, "description", "details", "summary")
+            contact = r.get("contact_html", "")
             return (f'<div class="news-item"><time>{when}</time><div>'
                     f'<h3>{link(g(r, "title", "position"), g(r, "url", "link", "apply"))}</h3>'
                     f'<p style="color:var(--muted)">{meta}</p>'
-                    f'{f"<p>{desc}</p>" if desc else ""}</div></div>')
+                    f'{f"<p>{desc}</p>" if desc else ""}{f"<p>{contact}</p>" if contact else ""}</div></div>')
 
         listing = ("".join(item(r) for r in open_) if open_ else
                    '<p class="empty-note">No positions are open yet — check back soon.</p>')
@@ -514,7 +573,9 @@ def main():
     (OUT / ".nojekyll").write_text("")
     for old in ("research.html", "news.html", "join.html"):
         (OUT / old).unlink(missing_ok=True)
-    team, pubs, pos = (sheet_data.tab(t) for t in ("Team", "Publications", "Positions"))
+    team = norm_team(sheet_data.tab("Team"))
+    pubs = norm_pubs(sheet_data.tab("Publications"))
+    pos = norm_positions(sheet_data.tab("Positions"))
     build_index()
     build_team(team)
     build_publications(pubs)
