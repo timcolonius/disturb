@@ -37,7 +37,7 @@ STYLE = """
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
-  font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   font-size: 17px; line-height: 1.65; color: var(--ink); background: var(--bg);
 }
 a { color: var(--red); text-decoration: none; }
@@ -47,43 +47,51 @@ img { max-width: 100%; height: auto; display: block; }
 .section { padding: 3.5rem 0; }
 .section.alt { background: var(--panel); }
 .kicker {
-  color: var(--red); font-weight: 900; font-size: .8rem;
+  color: var(--red); font-weight: 800; font-size: .8rem;
   letter-spacing: .14em; text-transform: uppercase; margin-bottom: .35rem;
 }
 h1, h2, h3 { color: var(--navy); line-height: 1.2; }
-h2 { font-size: 1.9rem; font-weight: 900; margin-bottom: 1rem; }
+h2 { font-size: 1.9rem; font-weight: 800; margin-bottom: 1rem; }
 h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: .4rem; }
 .lead { font-size: 1.12rem; color: var(--muted); max-width: 52rem; }
 
-/* header */
-header.site { background: #fff; border-bottom: 1px solid var(--line); }
-header.site .container { display: flex; align-items: center; gap: 1rem; padding-top: .7rem; padding-bottom: .7rem; }
-.brand { display: flex; align-items: center; gap: .8rem; color: var(--navy); }
-.brand:hover { text-decoration: none; }
-.brand img { height: 52px; width: auto; }
-.brand-word { font-weight: 900; font-size: 1.7rem; letter-spacing: .14em; line-height: 1; }
-.brand-sub { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-top: .25rem; }
-.header-grant { margin-left: auto; text-align: right; font-size: .75rem; font-weight: 700;
-  letter-spacing: .14em; text-transform: uppercase; color: var(--muted); line-height: 1.5; }
+/* nav (all pages) */
 nav.site { background: var(--navy); position: sticky; top: 0; z-index: 50; }
-nav.site ul { list-style: none; display: flex; flex-wrap: wrap; justify-content: flex-end; }
-nav.site a { display: block; color: #cfd8e8; padding: .75rem .9rem; font-size: .9rem; letter-spacing: .03em; }
-nav.site a:hover { color: #fff; text-decoration: none; }
-nav.site a.active { color: #fff; box-shadow: inset 0 -3px 0 var(--red); }
+nav.site .container { display: flex; align-items: center; gap: 1rem; }
+.nav-brand { display: flex; align-items: center; gap: .6rem; color: #fff; font-weight: 800;
+  letter-spacing: .04em; font-size: 1.05rem; padding: .45rem 0; flex-shrink: 0; }
+.nav-brand:hover { text-decoration: none; }
+.nav-brand img { height: 30px; width: auto; border-radius: 2px; }
+nav.site ul { list-style: none; display: flex; margin-left: auto; }
+nav.site a.lnk { display: block; color: #cfd8e8; padding: .85rem .9rem; font-size: .92rem; font-weight: 600; letter-spacing: .02em; }
+nav.site a.lnk:hover { color: #fff; text-decoration: none; }
+nav.site a.lnk.active { color: #fff; box-shadow: inset 0 -3px 0 var(--red); }
 
-/* hero */
-.hero { position: relative; color: #fff; background: var(--navy) url("images/turbulence.jpg") center/cover; }
-.hero::before { content: ""; position: absolute; inset: 0;
-  background: linear-gradient(100deg, rgba(20,40,75,.96) 0%, rgba(20,40,75,.86) 50%, rgba(20,40,75,.35) 100%); }
-.hero .container { position: relative; padding-top: 4.5rem; padding-bottom: 4.5rem; }
-.hero h1 { color: #fff; font-size: clamp(2rem, 4.5vw, 3.1rem); font-weight: 900; max-width: 40rem; }
-.hero p { font-size: 1.15rem; max-width: 40rem; margin-top: 1rem; color: #e3e9f4; }
-.hero .motto { margin-top: 1.6rem; font-weight: 900; color: #fff; display: inline-block;
-  border-left: 4px solid var(--red); padding-left: .8rem; }
-.figures { background: var(--red); color: #fff; }
-.figures .container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; padding-top: 1.1rem; padding-bottom: 1.1rem; text-align: center; }
-.figures b { display: block; font-size: 1.6rem; font-weight: 900; line-height: 1.2; }
-.figures span { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; opacity: .9; }
+/* brand strip (inner pages) */
+.brandbar { background: #fff; border-bottom: 1px solid var(--line); }
+.brandbar .container { display: flex; align-items: center; gap: 1.5rem; padding-top: 1rem; padding-bottom: 1rem; }
+.brandbar img { height: 72px; width: auto; }
+.grant { margin-left: auto; text-align: right; font-size: .78rem; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--muted); line-height: 1.6; }
+.grant b { color: var(--navy); font-weight: 800; }
+
+/* home hero: the animated logo */
+.hero { background: #fff; border-bottom: 1px solid var(--line); }
+.hero .container { padding-top: 3rem; padding-bottom: 2.5rem; }
+.hero-logo { width: 100%; max-width: 820px; aspect-ratio: 1236 / 286; display: block; }
+.hero-logo video, .hero-logo img { width: 100%; height: 100%; object-fit: contain; }
+.hero-meta { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem 2rem; margin-top: 1.8rem;
+  padding-top: 1.2rem; border-top: 1px solid var(--line); }
+.hero-meta .motto { color: var(--red); font-weight: 800; font-size: clamp(1.15rem, 2.4vw, 1.5rem); line-height: 1.3; }
+.hero-meta .sites { color: var(--muted); margin-top: .2rem; }
+.hero-meta .grant { font-size: .85rem; }
+.intro { background: var(--navy); color: #e3e9f4; }
+.intro .container { padding-top: 3rem; padding-bottom: 3rem; }
+.intro h1 { color: #fff; font-size: clamp(1.7rem, 3.6vw, 2.5rem); font-weight: 800; max-width: 46rem; }
+.intro p { font-size: 1.12rem; max-width: 50rem; margin-top: .9rem; }
+.intro h1::after { content: ""; display: block; width: 4rem; height: 4px; background: var(--red); margin-top: 1rem; }
+@media (prefers-reduced-motion: reduce) { .hero-logo video { display: none; } }
+@media (prefers-reduced-motion: no-preference) { .hero-logo .still { display: none; } }
 
 /* grids & cards */
 .grid { display: grid; gap: 1.25rem; }
@@ -110,7 +118,7 @@ nav.site a.active { color: #fff; box-shadow: inset 0 -3px 0 var(--red); }
 .limits li { padding: .25rem 0; border-top: 1px solid var(--line); }
 .limits b { color: var(--red); font-weight: 700; }
 .twin-badge { display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem;
-  border-radius: 50%; background: var(--navy); color: #fff; font-weight: 900; font-size: .9rem; margin-bottom: .6rem; }
+  border-radius: 50%; background: var(--navy); color: #fff; font-weight: 800; font-size: .9rem; margin-bottom: .6rem; }
 .twin:nth-child(2) .twin-badge { background: var(--navy-2); }
 .twin:nth-child(3) .twin-badge { background: var(--red); }
 .twin .mode { font-size: .85rem; color: var(--muted); font-style: italic; margin-bottom: .4rem; }
@@ -121,7 +129,7 @@ nav.site a.active { color: #fff; box-shadow: inset 0 -3px 0 var(--red); }
 .questions { list-style: none; counter-reset: q; }
 .questions li { counter-increment: q; padding: .7rem 0 .7rem 2.6rem; position: relative; border-top: 1px solid var(--line); font-size: 1.05rem; }
 .questions li::before { content: counter(q, lower-roman); position: absolute; left: 0; top: .65rem;
-  color: var(--red); font-weight: 900; font-style: italic; }
+  color: var(--red); font-weight: 800; font-style: italic; }
 .phases { display: grid; grid-template-columns: 22fr 27fr 24fr; gap: 4px; margin: 1rem 0 1.25rem; }
 .phases div { color: #fff; padding: .55rem .8rem; font-size: .9rem; font-weight: 700; border-radius: 3px; }
 .phases div:nth-child(1) { background: var(--blue); }
@@ -130,7 +138,7 @@ nav.site a.active { color: #fff; box-shadow: inset 0 -3px 0 var(--red); }
 .phases span { font-weight: 400; opacity: .9; }
 table.wp { width: 100%; border-collapse: collapse; font-size: .97rem; }
 table.wp td { padding: .5rem .4rem; border-top: 1px solid var(--line); vertical-align: top; }
-table.wp td:first-child { font-weight: 900; color: var(--navy); width: 4rem; }
+table.wp td:first-child { font-weight: 800; color: var(--navy); width: 4rem; }
 table.wp td:last-child { color: var(--muted); text-align: right; white-space: nowrap; }
 .btn { display: inline-block; background: var(--red); color: #fff; padding: .6rem 1.1rem; border-radius: 4px; font-weight: 700; }
 .btn:hover { text-decoration: none; background: #a50d26; }
@@ -140,11 +148,11 @@ table.wp td:last-child { color: var(--muted); text-align: right; white-space: no
 .site-card { border-top: 4px solid var(--red); }
 .site-card:nth-child(2) { border-top-color: var(--navy); }
 .site-card:nth-child(3) { border-top-color: var(--blue); }
-.site-card .pillar-name { font-size: .78rem; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; color: var(--red); }
+.site-card .pillar-name { font-size: .78rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--red); }
 .pi { display: flex; gap: .9rem; align-items: center; margin: .9rem 0; }
 .pi .ph { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
 .pi .ph.empty { background: var(--panel); display: flex; align-items: center; justify-content: center;
-  color: var(--navy); font-weight: 900; font-size: 1.3rem; }
+  color: var(--navy); font-weight: 800; font-size: 1.3rem; }
 .pi b { display: block; font-size: 1.1rem; color: var(--navy); }
 .pi span { font-size: .85rem; color: var(--muted); }
 .members { list-style: none; font-size: .95rem; }
@@ -168,23 +176,22 @@ footer.site .container { padding-top: 2rem; padding-bottom: 2rem; }
 .funding p { font-size: .8rem; line-height: 1.5; }
 .foot-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 1.25rem; }
 footer.site a { color: #fff; }
-.motto-bar { background: var(--red); color: #fff; text-align: center; font-weight: 900; padding: .8rem; letter-spacing: .02em; }
+.motto-bar { background: var(--red); color: #fff; text-align: center; font-weight: 800; padding: .8rem; letter-spacing: .02em; }
 
 @media (max-width: 900px) {
   .g3, .g4 { grid-template-columns: 1fr 1fr; }
   .synergy { grid-template-columns: 1fr; }
-  .figures .container { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 640px) {
   body { font-size: 16px; }
   .g2, .g3, .g4 { grid-template-columns: 1fr; }
   .apps { grid-template-columns: 1fr 1fr; }
-  .header-grant { display: none; }
-  .brand img { height: 42px; }
-  .brand-word { font-size: 1.4rem; }
-  nav.site ul { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; }
-  nav.site a { padding: .7rem .65rem; white-space: nowrap; }
-  .figures .container { grid-template-columns: repeat(2, 1fr); }
+  .grant.top { display: none; }
+  .brandbar img { height: 52px; }
+  nav.site .container { flex-wrap: wrap; gap: 0; }
+  nav.site ul { margin-left: 0; width: 100%; overflow-x: auto; }
+  nav.site a.lnk { padding: .6rem .7rem; white-space: nowrap; }
+  .hero-meta .grant { text-align: left; margin-left: 0; }
   .phases { grid-template-columns: 1fr; }
   .news-item { grid-template-columns: 1fr; gap: .2rem; }
   .funding { grid-template-columns: 1fr; }
@@ -196,17 +203,18 @@ footer.site a { color: #fff; }
 
 def header_html(active: str) -> str:
     links = "".join(
-        '<li><a href="{}"{}>{}</a></li>'.format(href, ' class="active"' if href == active else "", label)
+        '<li><a class="lnk{}" href="{}">{}</a></li>'.format(" active" if href == active else "", href, label)
         for label, href in NAV)
-    return f"""
-<header class="site"><div class="container">
-  <a class="brand" href="index.html">
-    <img src="images/logo.jpg" alt="DISTURB logo">
-    <div><div class="brand-word">{C.PROJECT}</div><div class="brand-sub">{C.TAGLINE}</div></div>
-  </a>
-  <div class="header-grant">{C.GRANT}<br>{C.PERIOD} · GA {C.GA}</div>
-</div></header>
-<nav class="site"><div class="container"><ul>{links}</ul></div></nav>"""
+    nav = (f'<nav class="site"><div class="container">'
+           f'<a class="nav-brand" href="index.html"><img src="images/logo_mark.png" alt="">{C.PROJECT}</a>'
+           f'<ul>{links}</ul></div></nav>')
+    if active == "index.html":
+        return nav  # the home hero carries the full logo
+    return nav + f"""
+<div class="brandbar"><div class="container">
+  <a href="index.html"><img src="images/logo_lockup.png" alt="{C.PROJECT} — {C.TAGLINE}"></a>
+  <div class="grant top"><b>{C.GRANT}</b><br>{C.PERIOD} · GA {C.GA}</div>
+</div></div>"""
 
 
 def footer_html() -> str:
@@ -236,11 +244,11 @@ def page(title: str, active: str, body: str, description: str = "") -> str:
 <meta name="description" content="{desc}">
 <meta property="og:title" content="{full}">
 <meta property="og:description" content="{desc}">
-<meta property="og:image" content="images/turbulence.jpg">
-<link rel="icon" href="images/logo.jpg">
+<meta property="og:image" content="images/logo_lockup.png">
+<link rel="icon" href="images/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -266,15 +274,25 @@ def section(kicker: str, title: str, inner: str, alt: bool = False, id_: str = "
 # ── Page blocks ────────────────────────────────────────────────────────────────
 
 def hero() -> str:
-    figs = "".join(f"<div><b>{v}</b><span>{k}</span></div>" for v, k in C.KEY_FIGURES)
+    alt = f"{C.PROJECT} — {C.TAGLINE}"
     return f"""
 <section class="hero"><div class="container">
-  <div class="kicker" style="color:#ff8a9a">{C.GRANT} · {C.PERIOD}</div>
+  <div class="hero-logo">
+    <video autoplay muted playsinline preload="auto" poster="images/logo_lockup.png" aria-label="{alt}">
+      <source src="images/logo_anim.webm" type="video/webm">
+      <source src="images/logo_anim.mp4" type="video/mp4">
+    </video>
+    <img class="still" src="images/logo_lockup.png" alt="{alt}">
+  </div>
+  <div class="hero-meta">
+    <div><div class="motto">{C.MOTTO}</div><div class="sites">{C.SITES}</div></div>
+    <div class="grant"><b>{C.GRANT}</b><br>{C.PERIOD} · GA {C.GA}</div>
+  </div>
+</div></section>
+<section class="intro"><div class="container">
   <h1>{C.HERO_TITLE}</h1>
   <p>{C.HERO_TEXT}</p>
-  <div class="motto">{C.MOTTO}</div>
-</div></section>
-<div class="figures"><div class="container">{figs}</div></div>"""
+</div></section>"""
 
 
 def challenge_block(alt=False) -> str:
